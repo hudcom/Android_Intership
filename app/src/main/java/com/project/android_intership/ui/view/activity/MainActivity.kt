@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import com.project.android_intership.R
 import com.project.android_intership.databinding.ActivityMainBinding
+import com.project.android_intership.ui.view.fragment.NewsFeedFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,6 +19,14 @@ class MainActivity : AppCompatActivity() {
         hideSystemUI()
         setupBinding()
         setupToolbar()
+
+        // Завантаження фрагменту
+        if (savedInstanceState == null) {
+            val fragment = NewsFeedFragment()
+            supportFragmentManager.beginTransaction()
+                .add(R.id.news_feed_fragment, fragment)
+                .commit()
+        }
     }
 
     // Налаштування binding
