@@ -5,12 +5,13 @@
         android:layout_height="wrap_content"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
+        android:background="@drawable/rounded_corners_background"
         android:padding="8dp"
         android:layout_marginVertical="10dp">
 
-        <!-- Thumbnail Image -->
+        <!-- Author Icon -->
         <ImageView
-            android:id="@+id/thumbnailImage"
+            android:id="@+id/authorIcon"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:scaleType="centerCrop"
@@ -27,8 +28,8 @@
             android:textAppearance="@style/SmallTextAppearance"
             android:layout_marginStart="10dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@+id/thumbnailImage"
-            app:layout_constraintStart_toEndOf="@+id/thumbnailImage"/>
+            app:layout_constraintBottom_toBottomOf="@+id/authorIcon"
+            app:layout_constraintStart_toEndOf="@+id/authorIcon"/>
 
         <!-- Post Date -->
         <TextView
@@ -51,7 +52,7 @@
             android:paddingHorizontal="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/thumbnailImage" />
+            app:layout_constraintTop_toBottomOf="@+id/authorIcon" />
 
         <!-- Main Image -->
         <ImageView

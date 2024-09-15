@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.project.android_intership.R
 import com.project.android_intership.data.model.PostData
@@ -28,7 +27,7 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
         val postAuthor: TextView = itemView.findViewById(R.id.postAuthor)
         val postDate: TextView = itemView.findViewById(R.id.postDate)
         val postComments: TextView = itemView.findViewById(R.id.postComments)
-        val thumbnailImage: ImageView = itemView.findViewById(R.id.thumbnailImage)
+        val authorIcon: ImageView = itemView.findViewById(R.id.authorIcon)
         val postImage: ImageView = itemView.findViewById(R.id.postImage)
     }
 
@@ -43,30 +42,8 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val post = items[position]
         Log.d("TEST", "onBindViewHolder called for position: $position")
-        with(holder) {
-            postTitle.text = post.title
-            postContent.text = post.selftext
-            postAuthor.text = post.author_fullname
-            postDate.text = formatTimeAgo(post.created)
-            postComments.text = "${post.num_comments} comments"
-
-            // Завантаження зображення за допомогою Glide
-            Glide.with(holder.itemView.context)
-                .load(post.thumbnail)
-                .apply(RequestOptions().placeholder(R.drawable.ic_thumbnail_placeholder)
-                    .transform(CircleCrop()))
-                .into(thumbnailImage)
-
-            Log.d("TEST","URL: ${post.url}")
-            val postUrl = post.url
-            if (postUrl != null && (postUrl.contains(".jpeg") || postUrl.contains(".png") || postUrl.contains(".jpg"))){
-                Glide.with(holder.itemView.context)
-                    .load(post.url)
-                    .apply(RequestOptions())
-                    .into(postImage)
-                postImage.visibility = View.VISIBLE
-            }
-        }
+        linkedData(holder, post)
+        loadImage(holder,post)
     }
 
     // Повертаємо кількість елементів
@@ -94,6 +71,27 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
             diffInHours > 0 -> "$diffInHours hours ago"
             diffInMinutes > 0 -> "$diffInMinutes minutes ago"
             else -> "Just now"
+        }
+    }
+
+    private fun loadImage(holder: ViewHolder, post: PostData){
+        val postUrl = post.url
+        if (postUrl != null && (postUrl.contains(".jpeg") || postUrl.contains(".png") || postUrl.contains(".jpg"))){
+            Glide.with(holder.itemView.context)
+                .load(post.url)
+                .apply(RequestOptions())
+                .into(holder.postImage)
+            holder.postImage.visibility = View.VISIBLE
+        }
+    }
+    private fun linkedData(holder: ViewHolder, post: PostData) {
+        with(holder) {
+            postTitle.text = post.title
+            postContent.text = post.selftext
+            postAuthor.text = post.author_fullname
+            postDate.text = formatTimeAgo(post.created)
+            postComments.text = "${post.num_comments} comments"
+            authorIcon.setImageResource(R.drawable.ic_icon_placeholder)
         }
     }
 }
