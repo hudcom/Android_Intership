@@ -5,31 +5,34 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.project.android_intership.data.model.PostData
+import com.project.android_intership.data.repository.RedditPagingSource
 import com.project.android_intership.network.RetrofitInstance
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NewsFeedViewModel : ViewModel() {
     private val redditAPI = RetrofitInstance.getApi()
-
-    private val _topPosts = MutableLiveData<List<PostData>>()
-    val topPosts: LiveData<List<PostData>>
+    private val _topPosts = MutableLiveData<PagingData<PostData>>()
+    val topPosts: LiveData<PagingData<PostData>>
         get() = _topPosts
 
-    fun getTopPosts(limit: Int) {
+    init{
         Log.d("TEST","Start get top posts...")
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = redditAPI.getTopPosts(limit)
-                _topPosts.postValue(response.data.children.map {
-                    it.data
-                })
-                Log.d("TEST","SUCCESS get top post.")
-            } catch (e: Exception) {
-                _topPosts.postValue(emptyList())
-                Log.d("TEST","ERROR get top post.")
-            }
+        viewModelScope.launch {
+            Pager(
+                config = PagingConfig(
+                    pageSize = 5,
+                    enablePlaceholders = false
+                ),
+                pagingSourceFactory = { RedditPagingSource(redditAPI) }
+            ).flow
+                .cachedIn(viewModelScope) // Кешування постів у viewModelScope
+                .collectLatest { _topPosts.postValue(it) } // Відправляємо дані у LiveData
         }
     }
 }

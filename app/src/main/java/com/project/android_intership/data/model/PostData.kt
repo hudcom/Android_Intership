@@ -1,6 +1,7 @@
 package com.project.android_intership.data.model
 
 data class PostData(
+    val id: String,
     val title:String,
     val selftext:String,
     val author_fullname:String,

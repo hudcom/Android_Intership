@@ -58,9 +58,12 @@ dependencies {
     // Залежності для фрагментів
     implementation("androidx.fragment:fragment-ktx:1.8.3")
 
-    // Залейності для завантаження зображень
+    // Залежності для завантаження зображень
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
+
+    // Залежності для PagingLibrary
+    implementation("androidx.paging:paging-runtime-ktx:3.3.2")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")

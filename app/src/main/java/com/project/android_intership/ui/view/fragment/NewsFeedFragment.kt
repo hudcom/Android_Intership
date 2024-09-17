@@ -42,9 +42,6 @@ class NewsFeedFragment : Fragment() {
 
         initPostLiveDataListener()
         initUrlLiveDataListener()
-
-        Log.d("TEST", "Get post list")
-        getPostsList()
     }
 
 
@@ -59,8 +56,8 @@ class NewsFeedFragment : Fragment() {
     private fun initPostLiveDataListener(){
         Log.d("TEST", "init listeners for liveData")
         viewModel.topPosts.observe(viewLifecycleOwner){ posts ->
-            if (posts.isNotEmpty()) {
-                adapter.updatePosts(posts)
+            if (posts != null) {
+                adapter.submitData(lifecycle, posts)
             } else {
                 Log.d("TEST", "No posts to update.")
             }
@@ -78,15 +75,9 @@ class NewsFeedFragment : Fragment() {
         }
     }
 
-    private fun getPostsList(){
-        // Тепер запит на отримання постів
-        viewModel.getTopPosts(10)
-    }
-
     // Налаштування ViewModel
     private fun setupViewModel(){
         viewModel = ViewModelProvider(this)[NewsFeedViewModel::class.java]
         newsViewModel = ViewModelProvider(this)[NewsViewModel::class.java]
     }
-
 }

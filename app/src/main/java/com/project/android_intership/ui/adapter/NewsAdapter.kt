@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -13,26 +13,14 @@ import com.project.android_intership.R
 import com.project.android_intership.data.model.PostData
 import com.project.android_intership.databinding.FragmentNewsBinding
 import com.project.android_intership.ui.view.viewmodel.NewsViewModel
-import com.project.android_intership.utils.PostDiffCallback
+import com.project.android_intership.utils.PostDataDiffCallback
 import java.util.concurrent.TimeUnit
 
-class NewsAdapter(private val viewModel: NewsViewModel) : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
-
-    private var items: List<PostData> = emptyList()
-
+class NewsAdapter(private val viewModel: NewsViewModel) : PagingDataAdapter<PostData, NewsAdapter.ViewHolder>(
+    PostDataDiffCallback()
+) {
     // ViewHolder з DataBinding
     class ViewHolder(val binding: FragmentNewsBinding) : RecyclerView.ViewHolder(binding.root)
-
-    /*// Створюємо ViewHolder, який визначає вигляд кожного елемента
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val postTitle: TextView = itemView.findViewById(R.id.postTitle)
-        val postContent: TextView = itemView.findViewById(R.id.postContent)
-        val postAuthor: TextView = itemView.findViewById(R.id.postAuthor)
-        val postDate: TextView = itemView.findViewById(R.id.postDate)
-        val postComments: TextView = itemView.findViewById(R.id.postComments)
-        val authorIcon: ImageView = itemView.findViewById(R.id.authorIcon)
-        val postImage: ImageView = itemView.findViewById(R.id.postImage)
-    }*/
 
     // Створюємо новий View для кожного елемента
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -43,24 +31,14 @@ class NewsAdapter(private val viewModel: NewsViewModel) : RecyclerView.Adapter<N
     // Зв'язуємо дані з ViewHolder
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val post = items[position]
-        Log.d("TEST", "onBindViewHolder called for position: $position")
-        linkedData(holder, post)
-        resetImage(holder)
-        loadImage(holder,post)
-        setClickListener(holder, post)
-    }
-
-    // Повертаємо кількість елементів
-    override fun getItemCount() = items.size
-
-    fun updatePosts(newItems: List<PostData>) {
-        val diffCallback = PostDiffCallback(items, newItems)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        items = newItems
-        diffResult.dispatchUpdatesTo(this) // Оновлення RecyclerView за допомогою DiffUtil
-        Log.d("TEST", "Update posts in Adapter. Count: ${items.size}")
+        val post = getItem(position)
+        if (post != null){
+            resetImage(holder)
+            linkedData(holder, post)
+            loadImage(holder,post)
+            setClickListener(holder, post)
+        } else
+            Log.d("TEST","Post is null")
     }
 
     private fun formatTimeAgo(timestamp: Long): String {
