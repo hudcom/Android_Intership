@@ -5,22 +5,25 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.project.android_intership.R
 import com.project.android_intership.data.model.PostData
+import com.project.android_intership.databinding.FragmentNewsBinding
+import com.project.android_intership.ui.view.viewmodel.NewsViewModel
 import com.project.android_intership.utils.PostDiffCallback
 import java.util.concurrent.TimeUnit
 
-class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
+class NewsAdapter(private val viewModel: NewsViewModel) : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
 
     private var items: List<PostData> = emptyList()
 
-    // Створюємо ViewHolder, який визначає вигляд кожного елемента
+    // ViewHolder з DataBinding
+    class ViewHolder(val binding: FragmentNewsBinding) : RecyclerView.ViewHolder(binding.root)
+
+    /*// Створюємо ViewHolder, який визначає вигляд кожного елемента
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val postTitle: TextView = itemView.findViewById(R.id.postTitle)
         val postContent: TextView = itemView.findViewById(R.id.postContent)
@@ -29,12 +32,12 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
         val postComments: TextView = itemView.findViewById(R.id.postComments)
         val authorIcon: ImageView = itemView.findViewById(R.id.authorIcon)
         val postImage: ImageView = itemView.findViewById(R.id.postImage)
-    }
+    }*/
 
     // Створюємо новий View для кожного елемента
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_news, parent, false)
-        return ViewHolder(view)
+        val binding = FragmentNewsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     // Зв'язуємо дані з ViewHolder
@@ -43,7 +46,9 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
         val post = items[position]
         Log.d("TEST", "onBindViewHolder called for position: $position")
         linkedData(holder, post)
+        resetImage(holder)
         loadImage(holder,post)
+        setClickListener(holder, post)
     }
 
     // Повертаємо кількість елементів
@@ -80,18 +85,31 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
             Glide.with(holder.itemView.context)
                 .load(post.url)
                 .apply(RequestOptions())
-                .into(holder.postImage)
-            holder.postImage.visibility = View.VISIBLE
+                .into(holder.binding.postImage)
+            holder.binding.postImage.visibility = View.VISIBLE
         }
     }
     private fun linkedData(holder: ViewHolder, post: PostData) {
-        with(holder) {
+        with(holder.binding) {
             postTitle.text = post.title
             postContent.text = post.selftext
             postAuthor.text = post.author_fullname
             postDate.text = formatTimeAgo(post.created)
             postComments.text = "${post.num_comments} comments"
             authorIcon.setImageResource(R.drawable.ic_icon_placeholder)
+        }
+    }
+
+    // Скидання зображення перед завантаженням нового
+    private fun resetImage(holder: ViewHolder){
+        holder.binding.postImage.setImageDrawable(null)
+        holder.binding.postImage.visibility = View.GONE
+    }
+
+    // Налаштовуємо натискання на зображення
+    private fun setClickListener(holder: ViewHolder,post: PostData){
+        holder.binding.postImage.setOnClickListener {
+            viewModel.onImageClicked(post.url.toString())
         }
     }
 }

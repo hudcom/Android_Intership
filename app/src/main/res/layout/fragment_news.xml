@@ -1,9 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <!-- Декларації змінних -->
+        <variable
+            name="post"
+            type="com.project.android_intership.data.model.PostData" />
+    </data>
     <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
         android:background="@drawable/rounded_corners_background"
         android:padding="8dp"
@@ -64,7 +71,8 @@
             app:layout_constraintTop_toBottomOf="@+id/postTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:contentDescription="@string/icon" />
+            android:contentDescription="@string/icon"
+            />
 
         <!-- Post Content -->
         <TextView
@@ -119,3 +127,4 @@
         </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

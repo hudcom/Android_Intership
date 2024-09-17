@@ -1,5 +1,7 @@
 package com.project.android_intership.ui.view.fragment
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,12 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.project.android_intership.databinding.FragmentNewsFeedBinding
 import com.project.android_intership.ui.adapter.NewsAdapter
 import com.project.android_intership.ui.view.viewmodel.NewsFeedViewModel
+import com.project.android_intership.ui.view.viewmodel.NewsViewModel
 
 class NewsFeedFragment : Fragment() {
 
     // Створюємо змінну для ViewBinding
     private lateinit var binding: FragmentNewsFeedBinding
     private lateinit var viewModel: NewsFeedViewModel
+    private lateinit var newsViewModel: NewsViewModel
     private lateinit var adapter: NewsAdapter
     private lateinit var recyclerView: RecyclerView
 
@@ -36,7 +40,8 @@ class NewsFeedFragment : Fragment() {
         setupViewModel()
         setupRecyclerView()
 
-        initLiveDataListeners()
+        initPostLiveDataListener()
+        initUrlLiveDataListener()
 
         Log.d("TEST", "Get post list")
         getPostsList()
@@ -47,17 +52,28 @@ class NewsFeedFragment : Fragment() {
     private fun setupRecyclerView(){
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = NewsAdapter()
+        adapter = NewsAdapter(newsViewModel)
         recyclerView.adapter = adapter
     }
 
-    private fun initLiveDataListeners(){
+    private fun initPostLiveDataListener(){
         Log.d("TEST", "init listeners for liveData")
         viewModel.topPosts.observe(viewLifecycleOwner){ posts ->
             if (posts.isNotEmpty()) {
                 adapter.updatePosts(posts)
             } else {
                 Log.d("TEST", "No posts to update.")
+            }
+        }
+    }
+
+    // Спостерігаємо за змінами в imageUrl
+    private fun initUrlLiveDataListener(){
+        newsViewModel.imageUrl.observe(viewLifecycleOwner) { url ->
+            url?.let {
+                // Відкриваємо Uri в новому вікні
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                startActivity(intent)
             }
         }
     }
@@ -70,6 +86,7 @@ class NewsFeedFragment : Fragment() {
     // Налаштування ViewModel
     private fun setupViewModel(){
         viewModel = ViewModelProvider(this)[NewsFeedViewModel::class.java]
+        newsViewModel = ViewModelProvider(this)[NewsViewModel::class.java]
     }
 
 }
