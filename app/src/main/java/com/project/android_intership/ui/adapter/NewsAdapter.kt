@@ -1,6 +1,8 @@
 package com.project.android_intership.ui.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +15,17 @@ import com.project.android_intership.R
 import com.project.android_intership.data.model.PostData
 import com.project.android_intership.databinding.FragmentNewsBinding
 import com.project.android_intership.ui.view.viewmodel.NewsViewModel
+import com.project.android_intership.utils.ImageFormatException
+import com.project.android_intership.utils.ImageDataCallback
 import com.project.android_intership.utils.PostDataDiffCallback
 import java.util.concurrent.TimeUnit
 
-class NewsAdapter(private val viewModel: NewsViewModel) : PagingDataAdapter<PostData, NewsAdapter.ViewHolder>(
-    PostDataDiffCallback()
-) {
+class NewsAdapter(private val viewModel: NewsViewModel,
+                  private val onImageLongClickListener: (View) -> Unit,
+) : PagingDataAdapter<PostData, NewsAdapter.ViewHolder>(PostDataDiffCallback()) {
+
+    private val imageDataCallback: ImageDataCallback = viewModel
+
     // ViewHolder з DataBinding
     class ViewHolder(val binding: FragmentNewsBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -37,6 +44,7 @@ class NewsAdapter(private val viewModel: NewsViewModel) : PagingDataAdapter<Post
             linkedData(holder, post)
             loadImage(holder,post)
             setClickListener(holder, post)
+            setLongClickListener(holder,post)
         } else
             Log.d("TEST","Post is null")
     }
@@ -87,7 +95,28 @@ class NewsAdapter(private val viewModel: NewsViewModel) : PagingDataAdapter<Post
     // Налаштовуємо натискання на зображення
     private fun setClickListener(holder: ViewHolder,post: PostData){
         holder.binding.postImage.setOnClickListener {
+            Log.d("TEST", "Image clicked")
             viewModel.onImageClicked(post.url.toString())
         }
+    }
+
+    private fun setLongClickListener(holder:ViewHolder,post: PostData){
+        holder.binding.postImage.setOnLongClickListener {
+            Log.d("TEST", "Image long clicked")
+            sendDataToViewModel(holder,post)
+            onImageLongClickListener.invoke(holder.binding.postImage)
+            true
+        }
+    }
+
+    private fun sendDataToViewModel(holder:ViewHolder, post: PostData){
+        val bitmap = convertImageToBitmap(holder)
+        val format = getFormat(post) ?: throw ImageFormatException("It is not possible to specify the image format")
+        imageDataCallback.sendImageData(bitmap,format)
+    }
+    private fun convertImageToBitmap(holder:ViewHolder): Bitmap = (holder.binding.postImage.drawable as BitmapDrawable).bitmap
+
+    private fun getFormat(post: PostData): String? {
+        return post.url?.split(".")?.lastOrNull()
     }
 }

@@ -4,6 +4,8 @@
 
     <!-- Дозвіл на доступ до Інтернету -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Дозвіл на читання і запис у пам'ять -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
