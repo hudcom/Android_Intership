@@ -21,7 +21,7 @@ class NewsFeedViewModel : ViewModel() {
     val topPosts: LiveData<PagingData<PostData>>
         get() = _topPosts
 
-    init{
+    fun loadNews() {
         Log.d("TEST","Start get top posts...")
         viewModelScope.launch {
             Pager(

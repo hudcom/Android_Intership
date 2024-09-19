@@ -40,15 +40,25 @@ class NewsFeedFragment : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupViewModel()
         setupRecyclerView()
-
         initPostLiveDataListener()
         initUrlLiveDataListener()
+        checkSaveInstanceState(savedInstanceState)
+    }
+
+    // Перевірка якщо фрагмент має вже збережений стан то завантажується він, якщо ні - завантажуються новини з API
+    private fun checkSaveInstanceState(savedInstanceState: Bundle?) {
+        if(savedInstanceState == null){
+            viewModel.loadNews()
+            Log.d("TEST","Posts: ${viewModel.topPosts.value}")
+        } else{
+            Log.d("TEST","Rotate screen: ${viewModel.topPosts.value}")
+            viewModel.topPosts.value?.let { adapter.submitData(lifecycle,it) }
+        }
     }
 
 
@@ -86,6 +96,7 @@ class NewsFeedFragment : Fragment() {
                 // Відкриваємо Uri в новому вікні
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 startActivity(intent)
+                newsViewModel.imageUrl.value = null  // Видаляємо imageUrl щоб воно повторно не відкривалося при перестворенні Activity
             }
         }
     }
