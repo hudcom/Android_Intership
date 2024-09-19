@@ -19,8 +19,11 @@ class MainActivity : AppCompatActivity() {
         hideSystemUI()
         setupBinding()
         setupToolbar()
+        loadFragment(savedInstanceState)
+    }
 
-        // Завантаження фрагменту
+    // Завантаження фрагменту
+    private fun loadFragment(savedInstanceState: Bundle?){
         if (savedInstanceState == null) {
             val fragment = NewsFeedFragment()
             supportFragmentManager.beginTransaction()

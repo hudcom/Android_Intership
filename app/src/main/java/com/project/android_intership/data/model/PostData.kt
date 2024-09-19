@@ -1,7 +1,11 @@
 package com.project.android_intership.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "posts")
 data class PostData(
-    val id: String,
+    @PrimaryKey val id: String,
     val title:String,
     val selftext:String,
     val author_fullname:String,

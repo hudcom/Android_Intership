@@ -1,6 +1,9 @@
 package com.project.android_intership.ui.view.fragment
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -47,14 +50,46 @@ class NewsFeedFragment : Fragment() {
         setupRecyclerView()
         initPostLiveDataListener()
         initUrlLiveDataListener()
-        checkSaveInstanceState(savedInstanceState)
+
+        checkInternetConnection(savedInstanceState)
     }
 
+    private fun checkInternetConnection(savedInstanceState: Bundle?) {
+        if (!isOnline(requireContext())){
+            Log.d("TEST","No internet connection")
+            Toast.makeText(requireContext(),"Немає інтернет з'єднання", Toast.LENGTH_LONG).show()
+            viewModel.loadTopPostsFromCache()
+        } else {
+            checkSavedInstanceState(savedInstanceState)
+        }
+    }
+
+    // Перевірка інтернет з'єднання
+    private fun isOnline(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+        return false
+    }
+
+
     // Перевірка якщо фрагмент має вже збережений стан то завантажується він, якщо ні - завантажуються новини з API
-    private fun checkSaveInstanceState(savedInstanceState: Bundle?) {
+    private fun checkSavedInstanceState(savedInstanceState: Bundle?) {
         if(savedInstanceState == null){
             viewModel.loadNews()
-            Log.d("TEST","Posts: ${viewModel.topPosts.value}")
         } else{
             Log.d("TEST","Rotate screen: ${viewModel.topPosts.value}")
             viewModel.topPosts.value?.let { adapter.submitData(lifecycle,it) }
@@ -79,7 +114,6 @@ class NewsFeedFragment : Fragment() {
     }
 
     private fun initPostLiveDataListener(){
-        Log.d("TEST", "init listeners for liveData")
         viewModel.topPosts.observe(viewLifecycleOwner){ posts ->
             if (posts != null) {
                 adapter.submitData(lifecycle, posts)
@@ -96,7 +130,8 @@ class NewsFeedFragment : Fragment() {
                 // Відкриваємо Uri в новому вікні
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 startActivity(intent)
-                newsViewModel.imageUrl.value = null  // Видаляємо imageUrl щоб воно повторно не відкривалося при перестворенні Activity
+                newsViewModel.imageUrl.value = null
+            // Видаляємо imageUrl щоб воно повторно не відкривалося при перестворенні Activity
             }
         }
     }

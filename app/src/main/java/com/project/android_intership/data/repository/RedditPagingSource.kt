@@ -1,11 +1,15 @@
 package com.project.android_intership.data.repository
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.project.android_intership.data.local.PostDao
 import com.project.android_intership.data.model.PostData
 import com.project.android_intership.network.RedditAPI
 
-class RedditPagingSource(private val redditAPI: RedditAPI): PagingSource<String,PostData>() {
+class RedditPagingSource(private val redditAPI: RedditAPI,
+                         private val postDao: PostDao
+): PagingSource<String,PostData>() {
     override suspend fun load(params: LoadParams<String>): LoadResult<String, PostData> {
         // Початкове значення позиції
         val position = params.key
@@ -18,6 +22,14 @@ class RedditPagingSource(private val redditAPI: RedditAPI): PagingSource<String,
             val posts = response.data.children.map {
                 it.data
             }
+
+            // Видалення старих постів
+            postDao.deleteAllPosts()
+
+            // Зберігаємо нові пости у кеш
+            postDao.insertTopPosts(posts)
+            Log.d("TEST", "Cached posts in Room Database")
+
             // Оновлюємо ключ наступної сторінки
             val nextKey = response.data.after
             // Завантажуємо сторінку
